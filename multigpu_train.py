@@ -1,3 +1,4 @@
+import os
 import torch
 from torch.utils.data import Dataset, DataLoader, random_split
 from torch.nn.parallel import DistributedDataParallel as DDP
@@ -203,6 +204,20 @@ def main():
 
     model = GPT(gpt_cfg)
     optimizer = model.configure_optimizers(0, learning_rate, (beta1, beta2), device)
+    train_cfg = TrainerConfig(
+        max_epochs=10,
+        batch_size=256,
+        data_loader_workers=4,
+        grad_norm_clip=1.0,
+        snapshot_path="gpt_snapshot.pt",
+        save_every=3,
+        use_amp=True,
+    )
+    trainer = Trainer(train_cfg, model, optimizer, train_set, test_set)
+    trainer.train()
+    destroy_process_group()
+
+
 
 
 

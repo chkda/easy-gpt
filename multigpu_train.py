@@ -127,7 +127,7 @@ class Trainer:
             _, loss = self.model(source, targets)
 
         if train:
-            self.optimizer.zero_grad(set_to_norm=True)
+            self.optimizer.zero_grad(set_to_none=True)
             if self.config.use_amp:
                 self.scaler.scale(loss).backward()
                 torch.nn.utils.clip_grad_norm(self.model.parameters(), self.config.grad_norm_clip)

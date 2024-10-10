@@ -207,7 +207,7 @@ def main():
     optimizer = model.configure_optimizers(0, learning_rate, (beta1, beta2), device)
     train_cfg = TrainerConfig(
         max_epochs=10,
-        batch_size=256,
+        batch_size=batch_size,
         data_loader_workers=4,
         grad_norm_clip=1.0,
         snapshot_path="gpt_snapshot.pt",

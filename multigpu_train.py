@@ -148,7 +148,7 @@ class Trainer:
             targets = targets.to(self.local_rank)
             batch_loss = self._run_batch(source, targets, train)
             if i % 100 == 0:
-                print(f"[GPU{self.global_rank}] Epoch {epoch} | Iter {iter} | {step_type} Loss {batch_loss:.5f}") 
+                print(f"[GPU{self.global_rank}] Epoch {epoch} | Iter {i} | {step_type} Loss {batch_loss:.5f}") 
 
     def train(self):
         for epoch in range(self.epochs_run, self.config.max_epochs):

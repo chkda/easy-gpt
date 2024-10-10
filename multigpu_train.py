@@ -1,7 +1,10 @@
 import torch
-from torch.utils.data import Dataset, Dataloader
+from torch.utils.data import Dataset, DataLoader, random_split
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.utils.data.distributed import DistributedSampler
+from torch.distributed import init_process_group, destroy_process_group
+
+from gpt import  GPTConfig, GPT
 
 from dataclasses import dataclass, asdict
 from typing import Optional, Any, Dict
@@ -136,7 +139,7 @@ class Trainer:
         
         return loss.item()
 
-    def _run_epoch(self, epochs: int, dataloader: Dataloader, train: bool = True):
+    def _run_epoch(self, epochs: int, dataloader: DataLoader, train: bool = True):
         dataloader.sampler.set_epoch(epoch)
         for i, (source, targets) in enumerate(dataloader):
             step_type = "Train" if train else "Eval"
@@ -155,3 +158,53 @@ class Trainer:
             
             if self.test_loader:
                 self._run_epoch(epoch, self.test_loader, train=False)
+
+
+def ddp_setup():
+    init_process_group(backend="nccl")
+    torch.cuda.set_device(int(os.environ["LOCAL_RANK"]))
+
+def main():
+
+    batch_size = 64
+    block_size = 256
+    max_iters = 5000
+    eval_interval = 500
+    learning_rate = 3e-4
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    eval_iters = 200
+    n_embd = 384
+    n_head = 6
+    n_layer = 6
+    dropout = 0.2
+    beta1 = 0.9
+    beta2 = 0.95
+
+    torch.manual_seed(1337)
+
+    data_cfg = DataConfig(
+        path="input.txt",
+        block_size=block_size,
+        train_split=0.9,
+        )
+
+    dataset = CharDataset(data_cfg)
+    train_len = int(len(dataset) * data_cfg.train_split)
+    train_set, test_set = random_split(dataset, [train_len, len(dataset) - train_len])
+
+    gpt_cfg = GPTConfig(
+        block_size=block_size,
+        vocab_size=dataset.vocab_size,
+        n_layer=n_layer,
+        n_head=n_head,
+        n_embd=n_embd,
+        dropout=dropout,
+    )
+
+    model = GPT(gpt_cfg)
+    optimizer = model.configure_optimizers(0, learning_rate, (beta1, beta2), device)
+
+
+
+if __name__ == "__main__":
+    main()

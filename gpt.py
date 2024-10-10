@@ -178,9 +178,9 @@ class GPT(nn.Module):
             {"params": nodecay_params, "weight_decay": 0.0}
         ]
 
-        fused_available = "fused" in inspect.signature(torch.optim.AdamW).parameters
-        use_fused = fused_available and device_type == "cuda"
-        extra_args = dict(fused=True) if use_fused else dict()
+        # fused_available = "fused" in inspect.signature(torch.optim.AdamW).parameters
+        # use_fused = fused_available and device_type == "cuda"
+        # extra_args = dict(fused=True) if use_fused else dict()
         optimizer = torch.optim.AdamW(optim_groups, lr=lr, betas=betas, **extra_args)
 
         return optimizer

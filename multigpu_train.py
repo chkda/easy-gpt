@@ -89,16 +89,16 @@ class Trainer:
     def _prepare_dataloader(self, dataset: Dataset):
         return DataLoader(
             dataset,
-            batch_size=self.cfg.batch_size,
+            batch_size=self.config.batch_size,
             pin_memory=True,
             shuffle=False,
-            num_workers=self.cfg.data_loader_workers,
+            num_workers=self.config.data_loader_workers,
             sampler=DistributedSampler(dataset),
         )
 
     def _load_snapshot(self):
         try:
-            snapshot_data = torch.load(self.cfg.snapshot_path, map_location="cpu")
+            snapshot_data = torch.load(self.config.snapshot_path, map_location="cpu")
         except FileNotFoundError:
             print("Snapshot was not found. Training model from scratch")
             return

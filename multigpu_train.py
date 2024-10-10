@@ -166,6 +166,7 @@ def ddp_setup():
     torch.cuda.set_device(int(os.environ["LOCAL_RANK"]))
 
 def main():
+    ddp_setup()
 
     batch_size = 64
     block_size = 256

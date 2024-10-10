@@ -87,7 +87,7 @@ class Trainer:
 
         
     def _prepare_dataloader(self, dataset: Dataset):
-        return Dataloader(
+        return DataLoader(
             dataset,
             batch_size=self.cfg.batch_size,
             pin_memory=True,
